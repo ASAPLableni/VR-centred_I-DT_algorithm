@@ -57,14 +57,18 @@ def compute_disp_angle(zip_obj):
 		return result_list, mssg
 
 
+### This function is the implementation of the I-DT algorithm in VR-centred system. 
+### The used thresholds are 0.25s for the time window and 1 degree for the dispersion threshold.
+### The input of the function time selects the column with the time variable.
+### The inputs et_(x,y,z) are coordinates of the gaze in x,y,z.
+### The inputs head_pos_(x,y,x) are the coordinates for the head position in x,y,z.
 
-
-def DA(data, 
+def IDT_VR(data, 
 	   time_th = 0.25, disp_th=1, 
-       time = "time", 
-       et_x="et_x", et_y="et_y", et_z="et_z", 
-       head_pos_x="head_pos_x", head_pos_y="head_pos_y", head_pos_z="head_pos_z",
-       frec_th=30, debug=False):
+	   time = "time", 
+	   et_x="et_x", et_y="et_y", et_z="et_z", 
+	   head_pos_x="head_pos_x", head_pos_y="head_pos_y", head_pos_z="head_pos_z",
+	   frec_th=30, debug=False):
     
 	data = data.reset_index(drop=True)
 	data["class_disp"] = ["?"]*data.shape[0]
