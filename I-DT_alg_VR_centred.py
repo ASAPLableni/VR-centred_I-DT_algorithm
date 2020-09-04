@@ -27,7 +27,8 @@ def compute_disp_angle(zip_obj):
 
 	mean_vertex_x, mean_vertex_y, mean_vertex_z, et_x_col, et_y_col, et_z_col, th = zip_obj
     
-	mean_vertex_x = mean_vertex_x[0] ; mean_vertex_y = mean_vertex_y[0] 
+	mean_vertex_x = mean_vertex_x[0] 
+	mean_vertex_y = mean_vertex_y[0] 
 	mean_vertex_z = mean_vertex_z[0]
 	th = th[0]
     
@@ -126,6 +127,7 @@ def IDT_VR(data,
 						my_progressbar_show(j-1, final_idx)
 
 					sub_data = data.iloc[initial_idx:(end_idx+1)]
+					
 					head_mean_pos_x = np.nanmean(sub_data[head_pos_x])
 					head_mean_pos_y = np.nanmean(sub_data[head_pos_y])
 					head_mean_pos_z = np.nanmean(sub_data[head_pos_z])
