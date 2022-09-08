@@ -1,0 +1,9 @@
+*.bat
+Documents/
+Images/
+__pycache__
+*.idea
+*.idea/
+*.ipynb_checkpoints/
+venv/
+*.csv
