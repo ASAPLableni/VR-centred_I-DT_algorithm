@@ -51,11 +51,11 @@ def compute_disp_angle(zip_obj):
 
         result_list += list(np.arccos(np.abs(diagonal)) * (180 / np.pi))
 
-        if th < np.nanmax(result_list):
+        if th != False and th < np.nanmax(result_list):
             mssg = "found"
             break
 
-        return result_list, mssg
+    return result_list, mssg
 
 
 # ### This function is the implementation of the I-DT algorithm in VR-centred system.
@@ -68,7 +68,7 @@ def IDT_VR(data,
            time_th=0.25, disp_th=1,
            time="time",
            et_x="et_x", et_y="et_y", et_z="et_z",
-           head_pos_x="head_pos_x", head_pos_y="head_pos_y", head_pos_z="head_pos_z",
+           head_pos_x="head_pose_x", head_pos_y="head_pose_y", head_pos_z="head_pose_z",
            freq_th=30, debug=False):
     data = data.reset_index(drop=True)
     data["class_disp"] = ["?"] * data.shape[0]
@@ -128,9 +128,8 @@ def IDT_VR(data,
                     head_mean_pos_y = np.nanmean(sub_data[head_pos_y])
                     head_mean_pos_z = np.nanmean(sub_data[head_pos_z])
 
-                    freq_list = sub_data[time].iloc[1:] - sub_data[time].iloc[:-1]
-                    freq_list = freq_list.values
-                    freq_list = 1 / freq_list
+                    t_diff_array = sub_data[time].iloc[1:].values - sub_data[time].iloc[:-1].values
+                    freq_list = 1 / t_diff_array
 
                     if np.sum(freq_list < freq_th) == 0:
                         output = list(map(compute_disp_angle,
