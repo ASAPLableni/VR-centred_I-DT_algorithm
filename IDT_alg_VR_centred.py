@@ -5,6 +5,7 @@
 # ###########################################
 
 import numpy as np
+import numba as nb
 import sys
 
 
@@ -24,7 +25,56 @@ def my_progressbar_show(j, count, prefix="", size=80, file=sys.stdout):
     file.flush()
 
 
-def compute_disp_angle(zip_obj):
+@nb.jit(nopython=True, fastmath=False)
+def get_result_numba(all_x, all_y, all_z, th):
+    mssg = "not_found"
+
+    label_break = False
+    result_list = []
+    for i in range(all_x.shape[0], 1 - 1, -1):
+        for j in range(i - 1, 0 - 1, -1):
+
+            num = np.sum(all_x[i] * all_x[j] + all_y[i] * all_y[j] + all_z[i] * all_z[j])
+            den1 = np.sqrt(all_x[i] ** 2 + all_y[i] ** 2 + all_z[i] ** 2)
+            den2 = np.sqrt(all_x[i] ** 2 + all_y[i] ** 2 + all_z[i] ** 2)
+
+            result = np.abs(num) / (den1 * den2)
+            result_list.append(np.arccos(result) * (180 / np.pi))
+
+            if not th and th < result:
+                mssg = "found"
+                label_break = True
+                break
+
+        if label_break:
+            break
+
+    return result_list, mssg
+
+
+def get_result_normal(all_x, all_y, all_z, th):
+    mssg = "not_found"
+
+    iteration = np.arange(1, all_x.shape[0], 1)[::-1]
+    result_list = []
+    for i in iteration:
+        dist_x_i = all_x[i]
+        dist_y_i = all_y[i]
+        dist_z_i = all_z[i]
+
+        diagonal = list(map(lambda j: scalar_product(dist_x_i, all_x[j], dist_y_i, all_y[j], dist_z_i, all_z[j]),
+                            np.arange(i)))
+
+        result_list += list(np.arccos(np.abs(diagonal)) * (180 / np.pi))
+
+        if not th and th < np.nanmax(result_list):
+            mssg = "found"
+            break
+
+    return result_list, mssg
+
+
+def compute_disp_angle(zip_obj, numba_allow=True):
     mean_vertex_x, mean_vertex_y, mean_vertex_z, et_x_col, et_y_col, et_z_col, th = zip_obj
 
     mean_vertex_x = mean_vertex_x[0]
@@ -32,28 +82,14 @@ def compute_disp_angle(zip_obj):
     mean_vertex_z = mean_vertex_z[0]
     th = th[0]
 
-    mssg = "not_found"
-    result_list = []
-
     all_x = np.array(et_x_col) - mean_vertex_x
     all_y = np.array(et_y_col) - mean_vertex_y
     all_z = np.array(et_z_col) - mean_vertex_z
 
-    iteration = np.arange(1, all_x.shape[0], 1)
-    iteration = iteration[::-1]
-    for i in iteration:
-        dist_x_i = all_x[i]
-        dist_y_i = all_y[i]
-        dist_z_i = all_z[i]
-
-        diagonal = list(map(lambda j: scalar_product(dist_x_i, all_x[j], dist_y_i, all_y[j], dist_z_i, all_z[j]),
-                        np.arange(i)))
-
-        result_list += list(np.arccos(np.abs(diagonal)) * (180 / np.pi))
-
-        if th != False and th < np.nanmax(result_list):
-            mssg = "found"
-            break
+    if numba_allow:
+        result_list, mssg = get_result_numba(all_x, all_y, all_z, th)
+    else:
+        result_list, mssg = get_result_normal(all_x, all_y, all_z, th)
 
     return result_list, mssg
 
@@ -94,7 +130,7 @@ def IDT_VR(data,
 
         sub_data = data.iloc[initial_idx:(end_idx + 1)]
 
-        freq_list = [1/(sub_data[time].iloc[i] - sub_data[time].iloc[i - 1]) for i in range(1, sub_data.shape[0])]
+        freq_list = [1 / (sub_data[time].iloc[i] - sub_data[time].iloc[i - 1]) for i in range(1, sub_data.shape[0])]
 
         if np.sum(np.array(freq_list) < freq_th) == 0:
 
