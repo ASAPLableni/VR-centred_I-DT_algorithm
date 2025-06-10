@@ -9,3 +9,11 @@ https://www.mdpi.com/1424-8220/20/17/4956
 If you find this code useful for your research please cite:
 
 Llanes-Jurado, J.; Marín-Morales, J.; Guixeres, J.; Alcañiz, M. Development and Calibration of an Eye-Tracking Fixation Identification Algorithm for Immersive Virtual Reality. Sensors 2020, 20, 4956. 
+
+*June 2025*. 
+
+A new version of the algorithm has been released, featuring the following updates:
+- Fixed a bug in the calculation of the distance between two consecutive 3D points caused by a Coordinate Inversion Error.
+- Adjusted the time-window calculation to resolve issues in certain scenarios.
+
+We would like to thank Gabriel Willems from the Louvain School of Engineering, University of Louvain, Belgium (@SarKasM99), for detecting and proposing fixes for these bugs.
